@@ -17,7 +17,7 @@ The objective of this project is to build a traffic sign classifier using Tensor
 
 The data, originally sourced from the [German traffic sign dataset](http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset), was separated into 34799 training images, 12630 test images and 4410 validation images.
 
-The first thing we want to do, naturally, is get a look at some of the images we'll be dealing with. Here's a sample of 128, (one of the first things you'll see printed out in the [Jupyter notebook]()):
+The first thing we want to do, naturally, is get a look at some of the images we'll be dealing with. Here's a sample of 128, (one of the first things you'll see printed out in the [Jupyter notebook](Traffic_Sign_Classifier.ipynb)):
 
 ![A sample of the training set images][image1]
 
@@ -67,7 +67,7 @@ It's likely that better results could be attained by applying learning rate deca
 
 #### Solution Approach
 
-Before we move on to how this model performed, let's add some further clarification as to how it was developed. As stated, this model was strongly inspired with a LeNet architecture (classifying road signs is a very similar problem to classifying written characters, so where better to begin than LeNet?). Because thimages are a little more "complicated" than written characters (at least, they seem so), and because there are so many different types, I assumed we would benefit from more wider layers, especially in the convolutional layers. Thanks to TensorFlow and modern GPUs, adding those extra is straightforward, but is likely to require regularization (for the given data set). This reasoning was the basis for the model above, and there weren't many changes after that point.
+Before we move on to how this model performed, let's add some further clarification as to how it was developed. As stated, this model was strongly inspired by the LeNet architecture (classifying road signs is a very similar problem to classifying written characters, so where better to begin than LeNet?). Because thimages are a little more "complicated" than written characters (at least, they seem so), and because there are so many different types, I assumed we would benefit from more wider layers, especially in the convolutional layers. Thanks to TensorFlow and modern GPUs, adding those extra is straightforward, but is likely to require regularization (for the given data set). This reasoning was the basis for the model above, and there weren't many changes after that point.
 
 An iterative approach was taken in setting the precise width of the convolutional layers, in setting the keep probability (in dropout) and in deciding whether to use color or grayscale preprocessed images as input to the model.
 
@@ -83,7 +83,7 @@ That leaves some scope for improvement, but it's not bad at all. There may be a 
 ### Test a Model on New Images
 
 What we really care about for a self-driving car, is the ability to reliably detect and classify real world road signs from uncontrolled driving environments. To approximate that, I found a couple of videos uploaded by motorcyclists driving through Berlin and Bonn (covering both of the post-WWII German capitals). Credit to the drivers for filming these:
-[![Many traffic signs in Berlin](https://img.youtube.com/vi/Z1EdiuMJUJg.jpg)](https://www.youtube.com/watch?v=Z1EdiuMJUJg)
+[![Many traffic signs in Berlin](https://img.youtube.com/vi/Z1EdiuMJUJg/0.jpg)](https://www.youtube.com/watch?v=Z1EdiuMJUJg)
 [![Many traffic signs in Bonn too](https://img.youtube.com/vi/KQfxd5hVJYY/0.jpg)](https://www.youtube.com/watch?v=KQfxd5hVJYY)
 
 From that, I extracted frames including traffic signs, cropped those frames to a bounding box around the traffic signs and reduced the resolution to 32 by 32, then put together a file labelling these images. Here's what the extracted road signs from Berlin and Bonn looked like (I stopped at 30 images):
@@ -133,7 +133,7 @@ First, the prediction accuracy for extracted images from Berlin and Bonn seems s
 
 Squint, and you'll notice that the 50 km/h sign in the tenth row was wrongly classified as a "keep left" sign. To a human, that misclassification seems bizarre. Let's take a look at that sign:
 
-![wrongly classified road sign][image10]
+<img src="extracted_signs/10.png" width="250">
 
 How would that possibly be construed as "keep left"? If we were to be generous, we might compare it with the other signs and notice that it is darker and with lower contrast than the others, it does appear badly blurred and a lot of the image is taken up by pixels that don't belong to the sign and may confuse things. And yet: one result like this destroys trust, especially without an understanding of how the wrong classification was arrived at. Perhaps the best aspect of that misclassification is that the confidence is just 45.8% - if we were to threshold this, and allow for a "can't classify" response, then our classifier might be more robust.
 
@@ -151,7 +151,7 @@ Image 7 was correctly predicted as a speed limit (50km/h) sign, but with a confi
 | 0.0041 | speed limit (60km/h) |
 | 0.0002 | speed limit (100km/h) |
 
-![classified road sign][image7]
+<img src="extracted_signs/07.png" width="250">
 
 That is interesting. It appears that our model has inferred the more general/ abstract properties of a speed limit sign. And the numbers "30" and "80" look more similar to "50" than other numbers do. Nice. 97.9% still feels like a robust confidence, and the other classifations up for consideration seem relatable (to a human).
 
@@ -166,7 +166,7 @@ Image 29 was correctly predicted as a speed limit (70km/h) sign, but with a conf
 | 0.0008 | keep left |
 | 0.0005 | stop |
 
-![classified road sign][image29]
+<img src="extracted_signs/29.png" width="250">
 
 Again, most of the classification weight that isn't taken by the correct classification, goes on another speed limit sign. Reasonable. This time however, general caution and keep left appear (perhaps because of the angle in the 7?). A stop sign also features. Let's hope we never mix "stop" with "drive at 70 km/h".
 
@@ -181,7 +181,7 @@ Image 27 was correctly predicted as a speed limit (70km/h) sign (again), but wit
 | 0.0008 | speed limit (50km/h) |
 | 0.0005 | speed limit (100km/h) |
 
-![classified road sign][image27]
+<img src="extracted_signs/27.png" width="250">
 
 This time, again, our model seems to be demonstrating a general "understanding" of speed limit signs. Neat.
 
@@ -196,7 +196,7 @@ Image 15 was correctly predicted as a bicycles crossing sign, but with a confide
 | 0.0059 | bumpy road |
 | 0.0020 | narrows on the right |
 
-![classified road sign][image15]
+<img src="extracted_signs/15.png" width="250">
 
 These alternatives also allow a positive interpretation: our model seems to have a general idea of caution signs.
 
@@ -211,7 +211,7 @@ Finally, back to image 10, which should have been classified as a 50 km/h speed 
 | 0.0641 | general caution |
 | 0.0533 | speed limit (70km/h) |
 
-![wrongly classified road sign][image10]
+<img src="extracted_signs/10.png" width="250">
 
 From this list, the only label that feels right is "general caution". With probabilities so widely dispersed, it seems that this image does not strongly activate our model for any particular classification. It's not sufficiently clear why this is the case.
 
